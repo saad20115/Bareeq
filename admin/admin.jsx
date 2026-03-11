@@ -1449,6 +1449,7 @@ function WorkingHoursPage({ schedules, setSchedules, drivers, setDrivers, addToa
 // SIDEBAR
 // ============================
 function Sidebar({ active, onNav }) {
+    const [mobileOpen, setMobileOpen] = useState(false);
     const items = [
         { id: 'dashboard', icon: '🏠', label: 'الرئيسية' },
         { id: 'packages', icon: '📦', label: 'الباقات' },
@@ -1460,26 +1461,42 @@ function Sidebar({ active, onNav }) {
         { id: 'reports', icon: '📊', label: 'التقارير' },
         { id: 'settings', icon: '⚙️', label: 'الإعدادات' },
     ];
+
+    const handleNav = (id) => {
+        onNav(id);
+        setMobileOpen(false);
+    };
+
     return (
-        <div className="sidebar">
-            <div className="sidebar-logo">
-                <div className="logo-text">بريق X</div>
-                <div className="logo-sub">لوحة التحكم</div>
+        <>
+            {/* Hamburger Toggle */}
+            <button className="sidebar-toggle" onClick={() => setMobileOpen(!mobileOpen)}>
+                {mobileOpen ? '✕' : '☰'}
+            </button>
+
+            {/* Overlay */}
+            {mobileOpen && <div className="sidebar-overlay" onClick={() => setMobileOpen(false)} />}
+
+            <div className={`sidebar ${mobileOpen ? 'sidebar-open' : ''}`}>
+                <div className="sidebar-logo">
+                    <div className="logo-text">بريق X</div>
+                    <div className="logo-sub">لوحة التحكم</div>
+                </div>
+                <nav className="sidebar-nav">
+                    {items.map(item => (
+                        <button key={item.id} className={`nav-item ${active === item.id ? 'active' : ''}`}
+                            onClick={() => handleNav(item.id)}>
+                            <span className="nav-icon">{item.icon}</span>
+                            {item.label}
+                        </button>
+                    ))}
+                </nav>
+                <div className="sidebar-footer">
+                    <div className="sidebar-footer-name">عبدالرحمن نوح</div>
+                    <div className="sidebar-footer-role">مدير النظام</div>
+                </div>
             </div>
-            <nav className="sidebar-nav">
-                {items.map(item => (
-                    <button key={item.id} className={`nav-item ${active === item.id ? 'active' : ''}`}
-                        onClick={() => onNav(item.id)}>
-                        <span className="nav-icon">{item.icon}</span>
-                        {item.label}
-                    </button>
-                ))}
-            </nav>
-            <div className="sidebar-footer">
-                <div className="sidebar-footer-name">عبدالرحمن نوح</div>
-                <div className="sidebar-footer-role">مدير النظام</div>
-            </div>
-        </div>
+        </>
     );
 }
 
