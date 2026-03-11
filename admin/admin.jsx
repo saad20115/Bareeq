@@ -1161,77 +1161,11 @@ function WorkingHoursPage({ schedules, setSchedules, addToast }) {
         addToast('success', '📋', `تم نسخ "${sch.name}"`);
     };
 
-    // ── Driver helpers ──
-    const saveDriver = (form) => {
-        if (editDriver) {
-            setDrivers(prev => prev.map(d => d.id === editDriver.id ? { ...d, ...form } : d));
-            addToast('success', '✅', `تم تعديل بيانات "${form.name}"`);
-        } else {
-            setDrivers(prev => [...prev, { ...form, id: Date.now() }]);
-            addToast('success', '✅', `تم إضافة المندوب "${form.name}"`);
-        }
-        setEditDriver(null);
-    };
-
-    const deleteDriver = (id) => {
-        const drv = drivers.find(d => d.id === id);
-        if (window.confirm(`هل تريد حذف المندوب "${drv?.name}"؟`)) {
-            setDrivers(prev => prev.filter(d => d.id !== id));
-            addToast('error', '🗑️', `تم حذف "${drv?.name}"`);
-        }
-    };
-
-    const toggleDriverStatus = (id) => {
-        setDrivers(prev => prev.map(d => {
-            if (d.id === id) {
-                const next = d.status === 'active' ? 'rest' : 'active';
-                addToast('info', next === 'active' ? '🟢' : '🔵', `${d.name}: ${next === 'active' ? 'نشط' : 'راحة'}`);
-                return { ...d, status: next };
-            }
-            return d;
-        }));
-    };
-
-    // ── Capacity Calc ──
-    const today = new Date();
-    const todayAr = DAY_NAMES[today.getDay()];
-
-    const isOnVacation = (drv) => {
-        const now = today.toISOString().slice(0, 10);
-        return drv.vacations.some(v => v.from <= now && v.to >= now);
-    };
-
-    const isRestDay = (drv) => drv.restDays.includes(todayAr);
-
-    const getDriverStatus = (drv) => {
-        if (isOnVacation(drv)) return 'on-leave';
-        if (isRestDay(drv)) return 'rest';
-        return drv.status;
-    };
-
-    const availableDrivers = drivers.filter(d => getDriverStatus(d) === 'active');
-    const onLeaveDrivers = drivers.filter(d => getDriverStatus(d) === 'on-leave');
-    const onRestDrivers = drivers.filter(d => getDriverStatus(d) === 'rest');
-    const totalCapacity = availableDrivers.reduce((s, d) => s + d.maxDailyWashes, 0);
-
     // ── Stats ──
     const activeSchCount = schedules.filter(s => s.active).length;
     const defaultSch = schedules.find(s => s.isDefault);
     const totalShifts = schedules.reduce((sum, s) => sum + s.days.reduce((ds, d) => ds + (d.enabled ? d.shifts.length : 0), 0), 0);
     const workingDays = defaultSch ? defaultSch.days.filter(d => d.enabled).length : 0;
-
-    const statusBadge = (status) => {
-        if (status === 'active') return <span className="badge badge-active"><span className="status-dot dot-green" /> نشط</span>;
-        if (status === 'on-leave') return <span className="badge" style={{ background: '#fefce8', color: '#b45309', border: '1px solid #fde68a' }}>🟡 إجازة</span>;
-        return <span className="badge badge-teal">🔵 راحة</span>;
-    };
-
-    const getScheduleName = (id) => schedules.find(s => s.id === id)?.name || '—';
-
-    // ── Capacity percentage for visual bar ──
-    const maxCapacity = drivers.reduce((s, d) => s + d.maxDailyWashes, 0);
-    const capacityPct = maxCapacity > 0 ? Math.round((totalCapacity / maxCapacity) * 100) : 0;
-    const capacityColor = capacityPct >= 70 ? 'var(--green-500)' : capacityPct >= 40 ? 'var(--gold-500)' : 'var(--red-500)';
 
     return (
         <div>
