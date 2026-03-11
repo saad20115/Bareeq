@@ -1,7 +1,15 @@
 // ===========================
-// SCREEN: Order Confirmation — Teal Theme
+// SCREEN: Order Confirmation — Teal Theme (Dynamic)
 // ===========================
 function renderConfirmation() {
+  const bk = BAREEQ_DATA.currentBooking || {};
+  const up = BAREEQ_DATA.userPackage;
+  const isPackageWash = bk.serviceType === 'package-wash';
+  const orderNum = '#BQ-' + Date.now().toString().slice(-6);
+  const addonsTotal = (bk.addons && bk.addons.length > 0) ? bk.addons.reduce((s, a) => s + a.price, 0) : 0;
+  const paidAmount = isPackageWash ? addonsTotal : (bk.normal_price || 0);
+  const pointsEarned = Math.round((paidAmount || 45) * 1.3);
+
   return `
   <div class="screen animate-in" style="background:#0d6b6b;min-height:100%;">
     <div class="screen-header" style="background:#0d6b6b;">
@@ -29,7 +37,7 @@ function renderConfirmation() {
         </svg>
       </div>
       <div style="font-size:22px;font-weight:700;color:white;text-align:center;">تم تأكيد طلبك! 🎉</div>
-      <div style="font-size:12px;color:rgba(255,255,255,0.7);text-align:center;">رقم الطلب: #BQ-20260312-0089</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.7);text-align:center;">رقم الطلب: ${orderNum}</div>
     </div>
 
     <div class="screen-body" style="background:#0d6b6b;padding-top:8px;">
@@ -39,24 +47,35 @@ function renderConfirmation() {
         <div style="font-size:14px;font-weight:700;color:white;margin-bottom:10px;">ملخص الطلب</div>
         <div class="summary-row">
           <span style="font-size:12px;color:rgba(255,255,255,0.6);">الخدمة</span>
-          <span style="font-size:12px;font-weight:600;color:white;">غسيل خارجي - سيدان</span>
+          <span style="font-size:12px;font-weight:600;color:white;">${bk.service || 'غسيل خارجي'}</span>
         </div>
         <div class="summary-row">
           <span style="font-size:12px;color:rgba(255,255,255,0.6);">الموعد</span>
-          <span style="font-size:12px;color:white;">الأربعاء 12 مارس • 11:00 ص</span>
+          <span style="font-size:12px;color:white;">${bk.date || '—'} • ${bk.time || '—'}</span>
         </div>
         <div class="summary-row">
           <span style="font-size:12px;color:rgba(255,255,255,0.6);">السيارة</span>
-          <span style="font-size:12px;color:white;">كامري XSE 2023</span>
+          <span style="font-size:12px;color:white;">${bk.car_name || '—'}</span>
         </div>
+        ${bk.location ? `
+        <div class="summary-row">
+          <span style="font-size:12px;color:rgba(255,255,255,0.6);">الموقع</span>
+          <span style="font-size:12px;color:white;">${bk.location}</span>
+        </div>` : ''}
         <div style="height:1px;background:rgba(255,255,255,0.15);margin:8px 0;"></div>
+        ${isPackageWash ? `
         <div class="summary-row">
           <span style="font-size:12px;color:rgba(255,255,255,0.6);">تغطية الباقة</span>
-          <span style="font-size:12px;font-weight:600;color:var(--gold);">45 ر.س</span>
-        </div>
+          <span style="font-size:12px;font-weight:600;color:var(--gold);">${up.price_per_wash} ر.س</span>
+        </div>` : ''}
+        ${addonsTotal > 0 ? `
+        <div class="summary-row">
+          <span style="font-size:12px;color:rgba(255,255,255,0.6);">إضافات</span>
+          <span style="font-size:12px;font-weight:600;color:var(--gold);">${addonsTotal} ر.س</span>
+        </div>` : ''}
         <div class="summary-row">
           <span style="font-size:13px;font-weight:700;color:white;">المبلغ المدفوع</span>
-          <span style="font-size:16px;font-weight:700;color:#4ade80;">0 ر.س ✓</span>
+          <span style="font-size:16px;font-weight:700;color:#4ade80;">${paidAmount} ر.س ${paidAmount === 0 ? '✓' : ''}</span>
         </div>
       </div>
 
@@ -66,8 +85,8 @@ function renderConfirmation() {
           <div class="circle circle-md" style="background:rgba(245,197,24,0.3);border:2px solid var(--gold);font-size:22px;">⭐</div>
           <div>
             <div style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.9);">نقاطك المكتسبة</div>
-            <div style="font-size:20px;font-weight:700;color:var(--gold);">+ 60 نقطة</div>
-            <div style="font-size:11px;color:rgba(255,255,255,0.6);">إجمالي نقاطك: 245 ⭐</div>
+            <div style="font-size:20px;font-weight:700;color:var(--gold);">+ ${pointsEarned} نقطة</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.6);">تُضاف لرصيد بريق مكافآت ⭐</div>
           </div>
         </div>
       </div>
