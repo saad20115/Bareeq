@@ -130,7 +130,7 @@ function renderHome() {
           ${BAREEQ_DATA.packages.map(p => `
             <div class="circle-item" onclick="navigate('store')" style="flex-shrink:0;scroll-snap-align:start;min-width:76px;">
               <div class="circle circle-lg ${p.circle_class}" style="width:70px;height:70px;font-size:28px;
-                          border:2px solid rgba(255,255,255,0.35);
+                          border:2px solid rgba(255,255,255,0.35);overflow:hidden;
                           box-shadow:0 2px 10px rgba(0,0,0,0.2);transition:transform 0.2s;">
                 ${p.icon}
               </div>
