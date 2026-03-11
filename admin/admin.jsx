@@ -1108,15 +1108,12 @@ function DriverModal({ onClose, onSave, editData, schedules }) {
 }
 
 // ============================
-// WORKING HOURS PAGE (with Tabs)
+// WORKING HOURS PAGE (Schedules Only)
 // ============================
-function WorkingHoursPage({ schedules, setSchedules, drivers, setDrivers, addToast }) {
-    const [activeTab, setActiveTab] = useState('schedules');
+function WorkingHoursPage({ schedules, setSchedules, addToast }) {
     const [showModal, setShowModal] = useState(false);
     const [editSch, setEditSch] = useState(null);
     const [expandedId, setExpandedId] = useState(null);
-    const [showDriverModal, setShowDriverModal] = useState(false);
-    const [editDriver, setEditDriver] = useState(null);
 
     const fmtTime = (t) => {
         if (!t) return '';
@@ -1238,21 +1235,6 @@ function WorkingHoursPage({ schedules, setSchedules, drivers, setDrivers, addToa
 
     return (
         <div>
-            {/* TABS */}
-            <div className="wh-tabs">
-                <button className={`wh-tab ${activeTab === 'schedules' ? 'wh-tab-active' : ''}`}
-                    onClick={() => setActiveTab('schedules')}>
-                    🕐 جداول العمل <span className="count-badge">{schedules.length}</span>
-                </button>
-                <button className={`wh-tab ${activeTab === 'drivers' ? 'wh-tab-active' : ''}`}
-                    onClick={() => setActiveTab('drivers')}>
-                    👥 المناديب <span className="count-badge">{drivers.length}</span>
-                </button>
-            </div>
-
-            {/* ========= SCHEDULES TAB ========= */}
-            {activeTab === 'schedules' && (
-                <div>
                     <div className="kpi-row">
                         <KpiCard variant="teal" icon="📅" label="جداول العمل" value={schedules.length} />
                         <KpiCard variant="gold" icon="✅" label="جداول نشطة" value={activeSchCount} />
@@ -1334,112 +1316,98 @@ function WorkingHoursPage({ schedules, setSchedules, drivers, setDrivers, addToa
                             editData={editSch ? { name: editSch.name, active: editSch.active, isDefault: editSch.isDefault, days: editSch.days.map(d => ({ ...d, shifts: d.shifts.map(s => ({ ...s })) })) } : null}
                         />
                     )}
+
+        </div>
+    );
+}
+
+// ============================
+// DRIVERS PAGE (Standalone)
+// ============================
+function DriversPage({ drivers, setDrivers, schedules, addToast }) {
+    const [showDriverModal, setShowDriverModal] = useState(false);
+    const [editDriver, setEditDriver] = useState(null);
+    const DRIVERS_PER_CAR = 2;
+
+    const saveDriver = (form) => {
+        if (editDriver) { setDrivers(prev => prev.map(d => d.id === editDriver.id ? { ...d, ...form } : d)); addToast('success', '✅', `تم تعديل بيانات "${form.name}"`); }
+        else { setDrivers(prev => [...prev, { ...form, id: Date.now() }]); addToast('success', '✅', `تم إضافة المندوب "${form.name}"`); }
+        setEditDriver(null);
+    };
+    const deleteDriver = (id) => { const drv = drivers.find(d => d.id === id); if (window.confirm(`هل تريد حذف المندوب "${drv?.name}"؟`)) { setDrivers(prev => prev.filter(d => d.id !== id)); addToast('error', '🗑️', `تم حذف "${drv?.name}"`); } };
+    const toggleDriverStatus = (id) => { setDrivers(prev => prev.map(d => { if (d.id === id) { const next = d.status === 'active' ? 'rest' : 'active'; addToast('info', next === 'active' ? '🟢' : '🔵', `${d.name}: ${next === 'active' ? 'نشط' : 'راحة'}`); return { ...d, status: next }; } return d; })); };
+
+    const today = new Date();
+    const todayAr = DAY_NAMES[today.getDay()];
+    const isOnVacation = (drv) => { const now = today.toISOString().slice(0, 10); return drv.vacations.some(v => v.from <= now && v.to >= now); };
+    const isRestDay = (drv) => drv.restDays.includes(todayAr);
+    const getDriverStatus = (drv) => { if (isOnVacation(drv)) return 'on-leave'; if (isRestDay(drv)) return 'rest'; return drv.status; };
+
+    const availableDrivers = drivers.filter(d => getDriverStatus(d) === 'active');
+    const onLeaveDrivers = drivers.filter(d => getDriverStatus(d) === 'on-leave');
+    const onRestDrivers = drivers.filter(d => getDriverStatus(d) === 'rest');
+    const totalWashCapacity = availableDrivers.reduce((s, d) => s + d.maxDailyWashes, 0);
+    const availableCars = Math.floor(availableDrivers.length / DRIVERS_PER_CAR);
+    const maxCapacity = drivers.reduce((s, d) => s + d.maxDailyWashes, 0);
+    const capacityPct = maxCapacity > 0 ? Math.round((totalWashCapacity / maxCapacity) * 100) : 0;
+    const capacityColor = capacityPct >= 70 ? 'var(--green-500)' : capacityPct >= 40 ? 'var(--gold-500)' : 'var(--red-500)';
+    const statusBadge = (status) => { if (status === 'active') return <span className="badge badge-active"><span className="status-dot dot-green" /> نشط</span>; if (status === 'on-leave') return <span className="badge" style={{ background: '#fefce8', color: '#b45309', border: '1px solid #fde68a' }}>🟡 إجازة</span>; return <span className="badge badge-teal">🔵 راحة</span>; };
+    const getScheduleName = (id) => schedules.find(s => s.id === id)?.name || '—';
+
+    return (
+        <div>
+            <div className="kpi-row">
+                <KpiCard variant="green" icon="✅" label="مناديب متاحين" value={availableDrivers.length} />
+                <KpiCard variant="gold" icon="🏖️" label="في إجازة" value={onLeaveDrivers.length} />
+                <KpiCard variant="blue" icon="🛌" label="يوم راحة" value={onRestDrivers.length} />
+                <KpiCard variant="teal" icon="🚗" label="سيارات متاحة" value={availableCars} />
+            </div>
+            <div className="drv-capacity-card">
+                <div className="drv-capacity-header">
+                    <div>
+                        <div className="drv-cap-title">⚡ السعة التشغيلية — {todayAr}</div>
+                        <div className="drv-cap-subtitle">{availableDrivers.length} مندوب متاح = {availableCars} سيارة (كل سيارة {DRIVERS_PER_CAR} مناديب) | {totalWashCapacity} غسلة ممكنة</div>
+                    </div>
+                    <div className="drv-cap-pct" style={{ color: capacityColor }}>{capacityPct}%</div>
                 </div>
-            )}
-
-            {/* ========= DRIVERS TAB ========= */}
-            {activeTab === 'drivers' && (
-                <div>
-                    {/* Capacity Overview */}
-                    <div className="kpi-row">
-                        <KpiCard variant="green" icon="✅" label="مناديب متاحين اليوم" value={availableDrivers.length} />
-                        <KpiCard variant="gold" icon="🏖️" label="في إجازة" value={onLeaveDrivers.length} />
-                        <KpiCard variant="blue" icon="🛌" label="يوم راحة" value={onRestDrivers.length} />
-                        <KpiCard variant="teal" icon="💧" label="السعة التشغيلية اليوم" value={totalCapacity} unit="غسلة" />
-                    </div>
-
-                    {/* Capacity Bar */}
-                    <div className="drv-capacity-card">
-                        <div className="drv-capacity-header">
-                            <div>
-                                <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--slate-800)', marginBottom: '4px' }}>⚡ السعة التشغيلية — {todayAr}</div>
-                                <div style={{ fontSize: '12px', color: 'var(--slate-500)' }}>{availableDrivers.length} مندوب متاح من أصل {drivers.length} | إجمالي {totalCapacity} غسلة ممكنة اليوم</div>
-                            </div>
-                            <div style={{ fontSize: '28px', fontWeight: 800, color: capacityColor }}>{capacityPct}%</div>
-                        </div>
-                        <div className="drv-capacity-bar">
-                            <div className="drv-capacity-fill" style={{ width: `${capacityPct}%`, background: capacityColor }} />
-                        </div>
-                        <div className="drv-capacity-legend">
-                            <span>🟢 متاح: {availableDrivers.length}</span>
-                            <span>🟡 إجازة: {onLeaveDrivers.length}</span>
-                            <span>🔵 راحة: {onRestDrivers.length}</span>
-                        </div>
-                    </div>
-
-                    {/* Drivers Table */}
-                    <div className="table-card">
-                        <div className="table-header">
-                            <div className="table-title">المناديب <span className="count-badge">{drivers.length}</span></div>
-                            <button className="btn-primary" onClick={() => { setEditDriver(null); setShowDriverModal(true); }}>+ إضافة مندوب</button>
-                        </div>
-                        <div className="table-wrap">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>المندوب</th>
-                                        <th>الجوال</th>
-                                        <th>جدول العمل</th>
-                                        <th>أيام الراحة</th>
-                                        <th>السعة اليومية</th>
-                                        <th>الحالة اليوم</th>
-                                        <th>إجازات قادمة</th>
-                                        <th>إجراءات</th>
+                <div className="drv-capacity-bar"><div className="drv-capacity-fill" style={{ width: `${capacityPct}%`, background: capacityColor }} /></div>
+                <div className="drv-capacity-legend">
+                    <span>🟢 متاح: {availableDrivers.length}</span><span>🟡 إجازة: {onLeaveDrivers.length}</span>
+                    <span>🔵 راحة: {onRestDrivers.length}</span><span>🚗 سيارات: {availableCars}</span>
+                </div>
+            </div>
+            <div className="table-card">
+                <div className="table-header">
+                    <div className="table-title">المناديب <span className="count-badge">{drivers.length}</span></div>
+                    <button className="btn-primary" onClick={() => { setEditDriver(null); setShowDriverModal(true); }}>+ إضافة مندوب</button>
+                </div>
+                <div className="table-wrap">
+                    <table>
+                        <thead><tr><th>المندوب</th><th>الجوال</th><th>جدول العمل</th><th>أيام الراحة</th><th>السعة اليومية</th><th>الحالة اليوم</th><th>إجازات قادمة</th><th>إجراءات</th></tr></thead>
+                        <tbody>
+                            {drivers.map(drv => {
+                                const realStatus = getDriverStatus(drv);
+                                const nextVac = drv.vacations.find(v => v.to >= today.toISOString().slice(0, 10));
+                                return (
+                                    <tr key={drv.id}>
+                                        <td style={{ fontWeight: 700, color: 'var(--slate-800)' }}><div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div className="drv-avatar">{drv.name.charAt(0)}</div>{drv.name}</div></td>
+                                        <td style={{ direction: 'ltr', textAlign: 'right' }}>{drv.phone}</td>
+                                        <td><span className="badge badge-teal">{getScheduleName(drv.scheduleId)}</span></td>
+                                        <td><div style={{ display: 'flex', gap: '3px', flexWrap: 'wrap' }}>{drv.restDays.map(d => <span key={d} className="drv-rest-chip">{d.slice(0, 3)}</span>)}</div></td>
+                                        <td><span style={{ fontWeight: 700 }}>{drv.maxDailyWashes}</span> <span style={{ fontSize: '11px', color: 'var(--slate-400)' }}>غسلة</span></td>
+                                        <td>{statusBadge(realStatus)}</td>
+                                        <td>{nextVac ? (<div style={{ fontSize: '11px' }}><div style={{ color: 'var(--slate-700)', fontWeight: 600 }}>{nextVac.reason || 'إجازة'}</div><div style={{ color: 'var(--slate-400)' }}>{nextVac.from} → {nextVac.to}</div></div>) : <span style={{ color: 'var(--slate-300)', fontSize: '12px' }}>—</span>}</td>
+                                        <td><div className="action-btns"><button className="action-btn btn-edit" onClick={() => { setEditDriver(drv); setShowDriverModal(true); }}>✏️</button><button className="action-btn btn-edit" onClick={() => toggleDriverStatus(drv.id)} title="تبديل الحالة">{realStatus === 'active' ? '🛌' : '🟢'}</button><button className="action-btn btn-del" onClick={() => deleteDriver(drv.id)}>🗑️</button></div></td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    {drivers.map(drv => {
-                                        const realStatus = getDriverStatus(drv);
-                                        const nextVac = drv.vacations.find(v => v.to >= today.toISOString().slice(0, 10));
-                                        return (
-                                            <tr key={drv.id}>
-                                                <td style={{ fontWeight: 700, color: 'var(--slate-800)' }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                        <div className="drv-avatar">{drv.name.charAt(0)}</div>
-                                                        {drv.name}
-                                                    </div>
-                                                </td>
-                                                <td style={{ direction: 'ltr', textAlign: 'right' }}>{drv.phone}</td>
-                                                <td><span className="badge badge-teal">{getScheduleName(drv.scheduleId)}</span></td>
-                                                <td>
-                                                    <div style={{ display: 'flex', gap: '3px', flexWrap: 'wrap' }}>
-                                                        {drv.restDays.map(d => <span key={d} className="drv-rest-chip">{d.slice(0, 3)}</span>)}
-                                                    </div>
-                                                </td>
-                                                <td><span style={{ fontWeight: 700 }}>{drv.maxDailyWashes}</span> <span style={{ fontSize: '11px', color: 'var(--slate-400)' }}>غسلة</span></td>
-                                                <td>{statusBadge(realStatus)}</td>
-                                                <td>
-                                                    {nextVac ? (
-                                                        <div style={{ fontSize: '11px' }}>
-                                                            <div style={{ color: 'var(--slate-700)', fontWeight: 600 }}>{nextVac.reason || 'إجازة'}</div>
-                                                            <div style={{ color: 'var(--slate-400)' }}>{nextVac.from} → {nextVac.to}</div>
-                                                        </div>
-                                                    ) : <span style={{ color: 'var(--slate-300)', fontSize: '12px' }}>—</span>}
-                                                </td>
-                                                <td>
-                                                    <div className="action-btns">
-                                                        <button className="action-btn btn-edit" onClick={() => { setEditDriver(drv); setShowDriverModal(true); }}>✏️</button>
-                                                        <button className="action-btn btn-edit" onClick={() => toggleDriverStatus(drv.id)} title="تبديل الحالة">{realStatus === 'active' ? '🛌' : '🟢'}</button>
-                                                        <button className="action-btn btn-del" onClick={() => deleteDriver(drv.id)}>🗑️</button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    {showDriverModal && (
-                        <DriverModal
-                            onClose={() => { setShowDriverModal(false); setEditDriver(null); }}
-                            onSave={saveDriver}
-                            schedules={schedules}
-                            editData={editDriver ? { ...editDriver, vacations: editDriver.vacations.map(v => ({ ...v })), restDays: [...editDriver.restDays] } : null}
-                        />
-                    )}
+                                );
+                            })}
+                        </tbody>
+                    </table>
                 </div>
+            </div>
+            {showDriverModal && (
+                <DriverModal onClose={() => { setShowDriverModal(false); setEditDriver(null); }} onSave={saveDriver} schedules={schedules}
+                    editData={editDriver ? { ...editDriver, vacations: editDriver.vacations.map(v => ({ ...v })), restDays: [...editDriver.restDays] } : null} />
             )}
         </div>
     );
@@ -1454,7 +1422,8 @@ function Sidebar({ active, onNav }) {
         { id: 'dashboard', icon: '🏠', label: 'الرئيسية' },
         { id: 'packages', icon: '📦', label: 'الباقات' },
         { id: 'working-hours', icon: '🕐', label: 'مواعيد العمل' },
-        { id: 'carTypes', icon: '🚗', label: 'أنواع السيارات' },
+        { id: 'drivers', icon: '🚗', label: 'المناديب' },
+        { id: 'carTypes', icon: '🚙', label: 'أنواع السيارات' },
         { id: 'customers', icon: '👥', label: 'العملاء' },
         { id: 'bookings', icon: '📅', label: 'الحجوزات' },
         { id: 'payments', icon: '💰', label: 'المدفوعات' },
@@ -1536,7 +1505,8 @@ function App() {
     const pageMap = {
         dashboard: { title: 'الرئيسية', component: <DashboardPage packages={packages} /> },
         packages: { title: 'إدارة الباقات', component: <PackagesPage packages={packages} setPackages={setPackages} addToast={addToast} /> },
-        'working-hours': { title: 'مواعيد العمل', component: <WorkingHoursPage schedules={schedules} setSchedules={setSchedules} drivers={drivers} setDrivers={setDrivers} addToast={addToast} /> },
+        'working-hours': { title: 'مواعيد العمل', component: <WorkingHoursPage schedules={schedules} setSchedules={setSchedules} addToast={addToast} /> },
+        drivers: { title: 'إدارة المناديب', component: <DriversPage drivers={drivers} setDrivers={setDrivers} schedules={schedules} addToast={addToast} /> },
         carTypes: { title: 'أنواع السيارات', component: <CarTypesPage addToast={addToast} /> },
         customers: { title: 'العملاء', component: <PlaceholderPage title="إدارة العملاء" icon="👥" /> },
         bookings: { title: 'الحجوزات', component: <PlaceholderPage title="الحجوزات" icon="📅" /> },
