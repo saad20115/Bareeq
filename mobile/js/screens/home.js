@@ -128,36 +128,29 @@ function renderHome() {
                   scroll-snap-type:x mandatory;">
         <div id="pkgScrollInner" style="display:flex;gap:14px;width:max-content;padding:4px 2px;">
           ${BAREEQ_DATA.packages.map(p => `
-            <div onclick="navigate('store')" style="display:flex;flex-direction:column;align-items:center;gap:7px;
-                 cursor:pointer;flex-shrink:0;scroll-snap-align:start;">
-              <div style="width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.13);
-                          border:2px solid rgba(255,255,255,0.35);display:flex;align-items:center;
-                          justify-content:center;font-size:28px;transition:transform 0.2s;
-                          box-shadow:0 2px 10px rgba(0,0,0,0.2);">
+            <div class="circle-item" onclick="navigate('store')" style="flex-shrink:0;scroll-snap-align:start;min-width:76px;">
+              <div class="circle circle-lg ${p.circle_class}" style="width:70px;height:70px;font-size:28px;
+                          border:2px solid rgba(255,255,255,0.35);
+                          box-shadow:0 2px 10px rgba(0,0,0,0.2);transition:transform 0.2s;">
                 ${p.icon}
               </div>
-              <div style="font-size:10px;color:rgba(255,255,255,0.9);font-weight:600;text-align:center;
-                          max-width:72px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</div>
-              <div style="font-size:10px;color:rgba(255,255,255,0.6);">${p.price} ر.س</div>
+              <span style="font-size:10px;color:rgba(255,255,255,0.9);font-weight:600;text-align:center;
+                          max-width:72px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</span>
+              <span style="font-size:10px;color:rgba(255,255,255,0.6);">${p.price} ر.س</span>
             </div>
           `).join('')}
           <!-- Custom builder shortcut -->
-          <div onclick="navigate('custom-package')" style="display:flex;flex-direction:column;align-items:center;gap:7px;
-               cursor:pointer;flex-shrink:0;scroll-snap-align:start;">
-            <div style="width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.08);
-                        border:2px dashed rgba(255,255,255,0.4);display:flex;align-items:center;
-                        justify-content:center;overflow:hidden;">
+          <div class="circle-item" onclick="navigate('custom-package')" style="flex-shrink:0;scroll-snap-align:start;min-width:76px;">
+            <div class="circle circle-lg" style="width:70px;height:70px;background:rgba(255,255,255,0.08);
+                        border:2px dashed rgba(255,255,255,0.4);overflow:hidden;">
               <img src="assets/images/real_alloy_wheel.png" style="width:100%;height:100%;object-fit:cover;" />
             </div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.9);font-weight:600;text-align:center;max-width:72px;">شكّل باقتك</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.6);">مخصص</div>
+            <span style="font-size:10px;color:rgba(255,255,255,0.9);font-weight:600;text-align:center;max-width:72px;">شكّل باقتك</span>
+            <span style="font-size:10px;color:rgba(255,255,255,0.6);">مخصص</span>
           </div>
         </div>
       </div>
     </div>
-
-
-
 
     <!-- QUICK ACTIONS (4 items row) -->
     <div style="display:flex;justify-content:space-between;padding:16px 20px 24px;">
