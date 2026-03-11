@@ -883,10 +883,10 @@ function ScheduleModal({ onClose, onSave, editData }) {
                                         </div>
                                         <div style={{ display: 'flex', gap: '6px' }}>
                                             {day.enabled && (
-                                                <>
+                                                <React.Fragment>
                                                     <button className="wh-action-btn wh-copy-btn" onClick={() => copyToAll(di)} title="نسخ لكل الأيام">📋 نسخ للكل</button>
                                                     <button className="wh-action-btn wh-add-shift-btn" onClick={() => addShift(di)}>+ فترة</button>
-                                                </>
+                                                </React.Fragment>
                                             )}
                                         </div>
                                     </div>
@@ -1468,7 +1468,7 @@ function Sidebar({ active, onNav }) {
     };
 
     return (
-        <>
+        <React.Fragment>
             {/* Hamburger Toggle */}
             <button className="sidebar-toggle" onClick={() => setMobileOpen(!mobileOpen)}>
                 {mobileOpen ? '✕' : '☰'}
@@ -1496,7 +1496,7 @@ function Sidebar({ active, onNav }) {
                     <div className="sidebar-footer-role">مدير النظام</div>
                 </div>
             </div>
-        </>
+        </React.Fragment>
     );
 }
 
