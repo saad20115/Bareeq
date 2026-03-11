@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>بريق X — نظام الباقات</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="css/design-system.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/screens.css" />
+  <!-- GSAP for premium animations -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+</head>
+
+<body>
+  <div id="app">
+    <!-- Phone Frame -->
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="screen-container" id="screen-container">
+        <!-- Screens injected here -->
+      </div>
+      <!-- BOTTOM NAVIGATION -->
+      <div class="bottom-nav" id="bottom-nav"
+        style="display:flex;justify-content:space-around;padding:10px 5px;background:#063f44;box-shadow:0 -5px 20px rgba(0,0,0,0.2);">
+
+        <!-- Home -->
+        <button class="nav-btn active" data-screen="home" onclick="navigate('home')">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+          </svg>
+          <span
+            style="font-size:11px;font-weight:700;color:var(--white);font-family:var(--font);margin-top:2px;">الرئيسية</span>
+        </button>
+
+        <!-- Cart / Subs & Tracking -->
+        <button class="nav-btn" data-screen="store" onclick="navigate('store')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="22" height="22">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+            <path d="M3 6h18" />
+            <path d="M16 10a4 4 0 01-8 0" />
+          </svg>
+          <span
+            style="font-size:11px;font-weight:700;color:var(--white);font-family:var(--font);margin-top:2px;">السلة</span>
+        </button>
+
+
+        <!-- Account / Profile -->
+        <button class="nav-btn" data-screen="wallet" onclick="navigate('wallet')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="22" height="22">
+            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          <span
+            style="font-size:11px;font-weight:700;color:var(--white);font-family:var(--font);margin-top:2px;">حسابي</span>
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/screens/store.js"></script>
+  <script src="js/screens/detail.js"></script>
+  <script src="js/screens/wallet.js"></script>
+  <script src="js/screens/checkout.js"></script>
+  <script src="js/screens/checkout-diff.js"></script>
+  <script src="js/screens/confirmation.js"></script>
+  <script src="js/screens/sessions.js"></script>
+  <script src="js/screens/custom-package.js"></script>
+  <script src="js/screens/home.js"></script>
+  <script src="js/screens/purchase-success.js"></script>
+  <script src="js/screens/scheduler.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/app.js"></script>
+  <!-- Motion enhancement: animate screens on navigate -->
+  <script>
+    const _origNavigate = navigate;
+    // Patch navigate to add GSAP entrance animation after render
+    const origNav = navigate;
+    navigate = function (screen, params) {
+      origNav(screen, params);
+      if (typeof gsap !== 'undefined') {
+        gsap.from('#screen-container > div', {
+          opacity: 0, y: 18, duration: 0.32, ease: 'power2.out', clearProps: 'all'
+        });
+        // Animate cards
+        gsap.from('#screen-container .card-teal, #screen-container [style*="border-radius:14px"]', {
+          opacity: 0, y: 12, stagger: 0.06, duration: 0.28, delay: 0.1, ease: 'power2.out', clearProps: 'all'
+        });
+      }
+    };
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,406 @@
+/* ===========================
+   BAREEQ X — Screen-specific styles
+   =========================== */
+
+/* HOME */
+.home-greeting {
+    padding: 8px 0 4px;
+}
+
+.home-stats-row {
+    display: flex;
+    gap: 10px;
+}
+
+.home-stat-card {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    text-align: center;
+}
+
+/* STORE */
+.filter-row {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+}
+
+.filter-row::-webkit-scrollbar {
+    display: none;
+}
+
+.filter-pill {
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    border: 1.5px solid rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    background: transparent;
+    font-family: var(--font);
+    transition: all 0.2s;
+}
+
+.filter-pill.active {
+    background: var(--white);
+    color: var(--teal-dark);
+    border-color: var(--white);
+    font-weight: 700;
+}
+
+/* WALLET */
+.wallet-header-card {
+    padding: 20px 16px;
+}
+
+.expires-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(245, 197, 24, 0.2);
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+}
+
+/* CHECKOUT */
+.package-highlight-card {
+    background: linear-gradient(135deg, var(--teal-mid), var(--teal-dark));
+    border-radius: var(--radius-xl);
+    padding: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.package-highlight-card::before {
+    content: '✅ باقة فعالة لديك!';
+    position: absolute;
+    top: 10px;
+    left: 14px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gold);
+}
+
+.package-highlight-badge {
+    position: absolute;
+    top: 10px;
+    left: 14px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gold);
+}
+
+.remaining-circle {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    border: 3px solid rgba(255, 255, 255, 0.6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.remaining-circle .num {
+    font-size: 22px;
+    font-weight: 700;
+    color: white;
+    line-height: 1;
+}
+
+.remaining-circle .lbl {
+    font-size: 9px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* CONFIRMATION */
+.confirm-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+    gap: 12px;
+}
+
+.confirm-check-circle {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--teal-mid), var(--teal-dark));
+    border: 4px solid rgba(255, 255, 255, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.2);
+    animation: pulse 2s infinite;
+}
+
+/* SESSION TRACKER */
+.session-status-completed {
+    background: var(--green-light);
+    color: var(--green);
+}
+
+.session-status-upcoming {
+    background: #dbeafe;
+    color: var(--blue);
+}
+
+.session-status-pending {
+    background: var(--gray-100);
+    color: var(--gray-600);
+}
+
+.stars {
+    color: var(--gold);
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+/* DETAIL */
+.details-hero {
+    background: linear-gradient(160deg, var(--teal-mid), #063d3d);
+    padding: 20px 16px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.stat-badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.stat-badge {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-md);
+    padding: 8px 12px;
+    text-align: center;
+    flex: 1;
+    min-width: 70px;
+}
+
+/* ===========================
+   NAV FAB — booking shortcut
+   =========================== */
+.nav-fab {
+    position: relative;
+    top: -14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    padding-top: 0;
+    border: none;
+    background: transparent;
+}
+
+.nav-fab span {
+    font-size: 10px;
+    color: var(--gold);
+    font-weight: 700;
+    margin-top: -2px;
+}
+
+/* ===========================
+   MOTION & ANIMATIONS
+   =========================== */
+
+/* Enhanced screen entrance */
+.animate-in {
+    animation: screenSlideIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes screenSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Hero card teal shimmer */
+.teal-shimmer {
+    position: relative;
+    overflow: hidden;
+}
+
+.teal-shimmer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(130deg,
+            transparent 30%,
+            rgba(255, 255, 255, 0.08) 50%,
+            transparent 70%);
+    background-size: 200% 100%;
+    animation: shimmerSlide 3s ease-in-out infinite;
+}
+
+@keyframes shimmerSlide {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Floating pulse for success icons */
+@keyframes floatPulse {
+
+    0%,
+    100% {
+        transform: translateY(0) scale(1);
+    }
+
+    50% {
+        transform: translateY(-6px) scale(1.03);
+    }
+}
+
+.float-pulse {
+    animation: floatPulse 2.4s ease-in-out infinite;
+}
+
+/* Ripple on button click */
+.btn-ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-ripple::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(0);
+    animation: ripple 0.5s linear;
+    pointer-events: none;
+}
+
+@keyframes ripple {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* Teal glow card hover */
+.glow-card {
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.glow-card:hover {
+    box-shadow: 0 8px 32px rgba(0, 200, 180, 0.25);
+    transform: translateY(-2px);
+}
+
+/* Success check bounce */
+@keyframes checkBounce {
+    0% {
+        transform: scale(0) rotate(-15deg);
+        opacity: 0;
+    }
+
+    60% {
+        transform: scale(1.15) rotate(3deg);
+        opacity: 1;
+    }
+
+    80% {
+        transform: scale(0.95) rotate(-1deg);
+    }
+
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+.check-bounce {
+    animation: checkBounce 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Gold orb floating */
+@keyframes orbFloat {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    33% {
+        transform: translate(4px, -8px) scale(1.04);
+    }
+
+    66% {
+        transform: translate(-3px, 6px) scale(0.97);
+    }
+}
+
+.orb-float {
+    animation: orbFloat 5s ease-in-out infinite;
+}
+
+/* Subtle card stagger fade-in (used via JS) */
+@keyframes cardFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Step progress fill animation */
+@keyframes progressFill {
+    from {
+        width: 0%;
+    }
+}
+
+.progress-bar-animated {
+    animation: progressFill 0.4s ease-out both;
+}
+
+/* Wave ripple background effect */
+@keyframes waveRipple {
+    0% {
+        transform: scale(0.8);
+        opacity: 0.6;
+    }
+
+    100% {
+        transform: scale(2.2);
+        opacity: 0;
+    }
+}
+
+.wave-ripple {
+    animation: waveRipple 2s ease-out infinite;
+}
